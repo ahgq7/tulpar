@@ -26,4 +26,4 @@ Program içerisindeki yönlendirmeler programın kullanımını kolaylaştıraca
 - "Dosya>Test İçin Fotoğraf Seç" kısmından fotoğraf eklerken eğer test-train klasörlerinden çok fazla görsel "Dosyalar" kısmına yüklendiyse seçilen fotoğrafınız yüklenmeyebilir. Bu durumda zaten daha öncesinde "Train Klasörü Seç" işlemini yaptınız için tekrardan "Train Klasörü Seç" kısmında içi tamamen boş bir klasör seçilip tekrar fotoğraf eklemesi denenebilir. 
 - Aynı zamanda eğer bilgisayarınızın WebCam'i varsa "WebCam" sekmesini seçin ve "WebCam Çöz" tuşuna basın. Açılan pencerede WebCam'inizin görüntüsü gösterilirken WebCam'inizle çözümlemek istediğiniz görüntüyü yakalayınca "q" tuşuna basın. Ardından bu görüntü "WebCam" sekmesinde gösterilecektir. Bu sekmede gösterildiğini gördükten sonra "Fotoğrafı Çöz" tuşuna basarak modelin bunu tahmin etmesini sağlayabilirsiniz. 
 #
-![Capture2](https://user-images.githubusercontent.com/71699856/193470107-5970c602-868a-4a7b-8d88-185205dd3cd1.PNG)
+![Capture3](https://user-images.githubusercontent.com/71699856/193470190-27f5f7da-fb17-48a2-8340-edbc4d2240b3.PNG)
