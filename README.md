@@ -27,3 +27,5 @@ Program içerisindeki yönlendirmeler programın kullanımını kolaylaştıraca
 - Aynı zamanda eğer bilgisayarınızın WebCam'i varsa "WebCam" sekmesini seçin ve "WebCam Çöz" tuşuna basın. Açılan pencerede WebCam'inizin görüntüsü gösterilirken WebCam'inizle çözümlemek istediğiniz görüntüyü yakalayınca "q" tuşuna basın. Ardından bu görüntü "WebCam" sekmesinde gösterilecektir. Bu sekmede gösterildiğini gördükten sonra "Fotoğrafı Çöz" tuşuna basarak modelin bunu tahmin etmesini sağlayabilirsiniz. 
 #
 ![Capture3](https://user-images.githubusercontent.com/71699856/193470190-27f5f7da-fb17-48a2-8340-edbc4d2240b3.PNG)
+
+[Berkan Acikgoz](https://github.com/berkanackgz)
