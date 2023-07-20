@@ -12,7 +12,7 @@ from os import listdir
 from os.path import isfile, join
 from tkinter import filedialog
 from tkinter import messagebox
-from keras.applications.densenet import layers
+from keras import layers
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from keras.losses import SparseCategoricalCrossentropy
 from matplotlib.backends._backend_tk import NavigationToolbar2Tk
@@ -29,6 +29,9 @@ from keras import backend as K, models
 import sys
 import threading
 from threading import Thread
+from keras.utils import plot_model
+from keras.callbacks import TensorBoard
+import pydot
 
 window = tk.Tk()
 window.geometry("1080x720")
@@ -62,6 +65,7 @@ window.kill = 0
 window.modelPath = ""
 window.modelSayisi = 0
 window.predictions = {}
+window.classSize = 10
 
 #window.bind('<Escape>', lambda e: cikis())
 
@@ -136,18 +140,29 @@ def modelEgit2():
     model.add(MaxPooling2D((2, 2)))
     model.add(Conv2D(64, (3, 3), activation=window.activation))
     model.add(MaxPooling2D((2, 2)))
+
     model.add(layers.Conv2D(64, (3, 3), activation=window.activation))
 
     model.add(Flatten())
     model.add(Dense(64, activation=window.activation))
-    model.add(Dense(10))
+    model.add(Dense(window.classSize))
 
     model.compile(optimizer='adam',
                   loss=SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
 
+    # Modelinizin yapısını bir görüntüye çizmek için:
+    plot_model(model, to_file='model.png')
+
+    # Modelinizin yapısını bir görüntüye çizmek ve boyutları göstermek için:
+    plot_model(model, to_file='model_with_shape_info.png', show_shapes=True)
+
+    tensorboard_callback = TensorBoard(log_dir="logs")
+
+
+
     history = model.fit(train_generator, steps_per_epoch=nb_train_samples // batch_size,
-                        epochs=epochs, validation_data=validation_generator)
+                        epochs=epochs, validation_data=validation_generator, callbacks=[tensorboard_callback])
 
     try:
         model.save("%s/model" % window.sourceFolder + "%i-" % window.modelNo + "%s.h5" % window.activation)
@@ -402,7 +417,7 @@ ciktiText = tk.Text(cikti, wrap=tk.WORD, state="normal")
 ciktiText.pack(fill="both")
 
 
-def chngEpoch(self):
+def chngEpoch(event):
     window.epoch = int(konsolEntryEpoch.get())
     print("Epoch değeri güncellendi: %i" % window.epoch)
     lEpoch.config(text="Epochs: %i" % window.epoch)
@@ -413,8 +428,7 @@ konsolEntryEpoch = tk.Entry(konsol, width=10)
 konsolEntryEpoch.place(x=70, y=10)
 konsolEntryEpoch.bind("<Return>", chngEpoch)
 
-
-def chngBatch(self):
+def chngBatch(event):
     window.batch = int(konsolEntryBatch.get())
     print("Batch değeri güncellendi: %i" % window.batch)
     lBatch.config(text="Batch Size: %i" % window.batch)
@@ -425,8 +439,7 @@ konsolEntryBatch = tk.Entry(konsol, width=10)
 konsolEntryBatch.place(x=70, y=40)
 konsolEntryBatch.bind("<Return>", chngBatch)
 
-
-def chngWidth(self):
+def chngWidth(event):
     window.img_width = int(konsolEntryWidth.get())
     print("Width değeri güncellendi: %i" % window.img_width)
     lImgWidth.config(text="Img Width: %i" % window.img_width)
@@ -438,7 +451,7 @@ konsolEntryWidth.place(x=70, y=70)
 konsolEntryWidth.bind("<Return>", chngWidth)
 
 
-def chngHeight(self):
+def chngHeight(event):
     window.img_height = int(konsolEntryHeight.get())
     print("Height değeri güncellendi: %i" % window.img_height)
     lImgHeight.config(text="Img Height: %i" % window.img_height)
@@ -449,30 +462,56 @@ konsolEntryHeight = tk.Entry(konsol, width=10)
 konsolEntryHeight.place(x=70, y=100)
 konsolEntryHeight.bind("<Return>", chngHeight)
 
+def chngClassSize(event):
+    window.classSize = int(konsolEntryClassSize.get())
+    print("Dense değeri güncellendi: %i" % window.classSize)
+    lClassSize.config(text="Dense: %i" % window.classSize)
+
+
+konsolEntryClassSizeLabel = tk.Label(konsol, text="Dense: ").place(x=5, y=130)
+konsolEntryClassSize = tk.Entry(konsol, width=10)
+konsolEntryClassSize.place(x=70, y=130)
+konsolEntryClassSize.bind("<Return>", chngClassSize)
+
+def acceptAll():
+    if (konsolEntryEpoch.get() != ""):
+        chngEpoch(None)
+    if (konsolEntryBatch.get() != ""):
+        chngBatch(None)
+    if (konsolEntryWidth.get() != ""):
+        chngWidth(None)
+    if(konsolEntryHeight.get() != ""):
+        chngHeight(None)
+    if (konsolEntryClassSize.get() != ""):
+        chngClassSize(None)
+
+konsolAccept = tk.Button(konsol, text="Uygula", font="Times 9",
+                  command=acceptAll, width=5, height=1).place(x=150, y=130)
+
 method = tk.StringVar()
 
 konsolReluRadio = tk.Radiobutton(konsol, text="relu", value="relu", variable=method)
-konsolReluRadio.place(x=5, y=130)
+konsolReluRadio.place(x=5, y=160)
 konsolSigmoidRadio = tk.Radiobutton(konsol, text="sigmoid", value="sigmoid", variable=method)
-konsolSigmoidRadio.place(x=5, y=190)
+konsolSigmoidRadio.place(x=5, y=220)
 konsolTanhRadio = tk.Radiobutton(konsol, text="tanh", value="tanh", variable=method)
-konsolTanhRadio.place(x=105, y=130)
+konsolTanhRadio.place(x=105, y=160)
 konsolSeluRadio = tk.Radiobutton(konsol, text="selu", value="selu", variable=method)
-konsolSeluRadio.place(x=5, y=160)
+konsolSeluRadio.place(x=5, y=190)
 konsolEluRadio = tk.Radiobutton(konsol, text="elu", value="elu", variable=method)
-konsolEluRadio.place(x=105, y=160)
+konsolEluRadio.place(x=105, y=190)
 
 konsolSoftmaxRadio = tk.Radiobutton(konsol, text="softmax", value="softmax", variable=method)
-konsolSoftmaxRadio.place(x=205, y=130)
+konsolSoftmaxRadio.place(x=205, y=160)
 konsolSoftplusRadio = tk.Radiobutton(konsol, text="softplus", value="softplus", variable=method)
-konsolSoftplusRadio.place(x=205, y=160)
+konsolSoftplusRadio.place(x=205, y=190)
 konsolSoftsignRadio = tk.Radiobutton(konsol, text="softsign", value="softsign", variable=method)
-konsolSoftsignRadio.place(x=105, y=190)
+konsolSoftsignRadio.place(x=105, y=220)
 konsolExponentialRadio = tk.Radiobutton(konsol, text="exponential", value="exponential", variable=method)
-konsolExponentialRadio.place(x=205, y=190)
+konsolExponentialRadio.place(x=205, y=220)
 
 
-def chngActivation(self):
+def chngActivation(event):
     window.activation = method.get()
     print("Aktivasyon fonksiyonu güncellendi: %s" % window.activation)
     lActivation.config(text="Activation: %s" % window.activation)
@@ -497,15 +536,17 @@ shows.add(gorselData, text="Eğitim Grafiği")
 shows.add(webcam, text="WebCam")
 
 lEpoch = tk.Label(opts, text="Epochs: %i" % window.epoch)
-lEpoch.place(x=15, y=22)
+lEpoch.place(x=15, y=12)
 lBatch = tk.Label(opts, text="Batch Size: %i" % window.batch)
-lBatch.place(x=15, y=42)
+lBatch.place(x=15, y=32)
 lImgWidth = tk.Label(opts, text="Img Width: %i" % window.img_width)
-lImgWidth.place(x=15, y=62)
+lImgWidth.place(x=15, y=52)
 lImgHeight = tk.Label(opts, text="Img Height: %i" % window.img_height)
-lImgHeight.place(x=15, y=82)
+lImgHeight.place(x=15, y=72)
 lActivation = tk.Label(opts, text="Activation: %s" % window.activation)
-lActivation.place(x=15, y=102)
+lActivation.place(x=15, y=112)
+lClassSize = tk.Label(opts, text="Dense: %s" % window.classSize)
+lClassSize.place(x=15, y=92)
 
 bEgit = tk.Button(opts, text="Modeli Eğit", font="Times 20", activebackground="green",
                   bg="red", fg="white", activeforeground="black",
